@@ -134,56 +134,109 @@ export default function ProductsAdminPage() {
       </div>
 
       <div className="rounded-lg border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[60px]">번호</TableHead>
-              <TableHead>구분</TableHead>
-              <TableHead className="w-[100px]">이미지</TableHead>
-              <TableHead>제품명</TableHead>
-              <TableHead>제품내용</TableHead>
-              <TableHead>가격</TableHead>
-              <TableHead>별점</TableHead>
-              <TableHead>재고</TableHead>
-              <TableHead className="text-right">관리</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
+        {/* 데스크톱 테이블 - 기존 유지 */}
+        <div className="hidden md:block">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[60px]">번호</TableHead>
+                <TableHead>구분</TableHead>
+                <TableHead className="w-[100px]">이미지</TableHead>
+                <TableHead>제품명</TableHead>
+                <TableHead>제품내용</TableHead>
+                <TableHead>가격</TableHead>
+                <TableHead>별점</TableHead>
+                <TableHead>재고</TableHead>
+                <TableHead className="text-right">관리</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {paginatedProducts.map((product, index) => (
+                <TableRow key={product.id}>
+                  <TableCell>{(currentPage - 1) * productsPerPage + index + 1}</TableCell>
+                  <TableCell className="capitalize">{product.category}</TableCell>
+                  <TableCell>
+                    <div className="relative w-16 h-16">
+                      <ImageWithFallback src={product.image} alt={product.name} fill className="rounded-md object-cover" />
+                      {product.stock === 0 && (
+                        <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-md">
+                          <span className="text-white font-bold text-xs">Sold Out</span>
+                        </div>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell className="font-medium">{product.name}</TableCell>
+                  <TableCell>
+                    {product.description.length > 20
+                      ? `${product.description.substring(0, 20)}...`
+                      : product.description}
+                  </TableCell>
+                  <TableCell>₩{product.price.toLocaleString()}</TableCell>
+                  <TableCell>{product.rating.toFixed(1)}</TableCell>
+                  <TableCell>{product.stock}</TableCell>
+                  <TableCell className="text-right">
+                    <Button variant="outline" size="sm" className="mr-2" onClick={() => { setSelectedProduct(product); setIsDialogOpen(true); }}>
+                      수정
+                    </Button>
+                    <Button variant="destructive" size="sm" onClick={() => handleDeleteRequest(product)}>
+                      삭제
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+
+        {/* 모바일 카드 목록 - 이미지, 제품명, 관리 항목만 */}
+        <div className="md:hidden">
+          <div className="space-y-4 p-4">
             {paginatedProducts.map((product, index) => (
-              <TableRow key={product.id}>
-                <TableCell>{(currentPage - 1) * productsPerPage + index + 1}</TableCell>
-                <TableCell className="capitalize">{product.category}</TableCell>
-                <TableCell>
-                  <div className="relative w-16 h-16">
-                    <ImageWithFallback src={product.image} alt={product.name} fill className="rounded-md object-cover" />
-                    {product.stock === 0 && (
-                      <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-md">
-                        <span className="text-white font-bold text-xs">Sold Out</span>
-                      </div>
-                    )}
-                  </div>
-                </TableCell>
-                <TableCell className="font-medium">{product.name}</TableCell>
-                <TableCell>
-                  {product.description.length > 20
-                    ? `${product.description.substring(0, 20)}...`
-                    : product.description}
-                </TableCell>
-                <TableCell>₩{product.price.toLocaleString()}</TableCell>
-                <TableCell>{product.rating.toFixed(1)}</TableCell>
-                <TableCell>{product.stock}</TableCell>
-                <TableCell className="text-right">
-                  <Button variant="outline" size="sm" className="mr-2" onClick={() => { setSelectedProduct(product); setIsDialogOpen(true); }}>
+              <div key={product.id} className="flex items-center space-x-4 p-4 border rounded-lg bg-white">
+                {/* 이미지 */}
+                <div className="relative w-16 h-16 flex-shrink-0">
+                  <ImageWithFallback 
+                    src={product.image} 
+                    alt={product.name} 
+                    fill 
+                    className="rounded-md object-cover" 
+                  />
+                  {product.stock === 0 && (
+                    <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-md">
+                      <span className="text-white font-bold text-xs">Sold Out</span>
+                    </div>
+                  )}
+                </div>
+                
+                {/* 제품명 */}
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-medium text-gray-900 truncate">{product.name}</h3>
+                  <p className="text-sm text-gray-500 capitalize">{product.category}</p>
+                </div>
+                
+                {/* 관리 버튼 */}
+                <div className="flex flex-col space-y-2 flex-shrink-0">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => { setSelectedProduct(product); setIsDialogOpen(true); }}
+                    className="w-full"
+                  >
                     수정
                   </Button>
-                  <Button variant="destructive" size="sm" onClick={() => handleDeleteRequest(product)}>
+                  <Button 
+                    variant="destructive" 
+                    size="sm" 
+                    onClick={() => handleDeleteRequest(product)}
+                    className="w-full"
+                  >
                     삭제
                   </Button>
-                </TableCell>
-              </TableRow>
+                </div>
+              </div>
             ))}
-          </TableBody>
-        </Table>
+          </div>
+        </div>
       </div>
 
       <div className="flex justify-between items-center mt-8">

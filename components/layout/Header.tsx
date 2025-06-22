@@ -1,120 +1,170 @@
+'use client';
+
+import React, { useContext } from 'react';
 import Link from 'next/link';
-import { ShoppingCart, Menu, Music, Music2 } from 'lucide-react';
+import { ShoppingCart, Menu, User, LogIn, LogOut, UserPlus, Users, ClipboardList, History, Disc3, Music4, Package } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useCart } from '@/context/CartContext';
 import {
-    Sheet,
-    SheetContent,
-    SheetHeader,
-    SheetTitle,
-    SheetTrigger,
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
 } from "@/components/ui/sheet";
-import ImageWithFallback from '@/components/ImageWithFallback';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { useUser } from '@/context/UserContext';
+import { useCart } from '@/context/CartContext';
 import { useAudio } from '@/context/AudioContext';
+import { useRouter } from 'next/navigation';
 
 const Header = () => {
-    const { cart, removeFromCart, updateQuantity } = useCart();
-    const { isPlaying, togglePlayPause } = useAudio();
-    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-    const totalPrice = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const { user, logout } = useUser();
+  const { cart } = useCart();
+  const { isPlaying, togglePlayPause } = useAudio();
+  const router = useRouter();
 
-    return (
-        <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-            <div className="container flex h-14 items-center">
-                <div className="mr-4 hidden md:flex">
-                    <Link href="/" className="mr-6 flex items-center space-x-2">
-                        <ShoppingCart className="h-6 w-6" />
-                        <span className="hidden font-bold sm:inline-block">MINI 스토어</span>
+  const cartItemCount = cart.reduce((total, item) => total + item.quantity, 0);
+
+  return (
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container flex h-16 items-center">
+        <div className="mr-4 hidden md:flex">
+          <Link href="/" className="mr-6 flex items-center space-x-2">
+            <span className="font-bold">MINI 스토어</span>
+          </Link>
+          <nav className="flex items-center space-x-6 text-sm font-medium">
+            <Link href="/info">회사</Link>
+            <Link href="/about">안내</Link>
+            <Link href="/qa">Q&A</Link>
+            <Link href="/contact">문의</Link>
+          </nav>
+        </div>
+
+        <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
+          {/* 모바일 메뉴 (Sheet) */}
+          <div className="md:hidden">
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <Menu className="h-6 w-6" />
+                  <span className="sr-only">메뉴 열기</span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left">
+                <SheetHeader>
+                  <SheetTitle>메뉴</SheetTitle>
+                </SheetHeader>
+                <div className="grid gap-4 py-4">
+                  <Link href="/" className="flex items-center space-x-2">
+                    <span className="font-bold">MINI 스토어</span>
+                  </Link>
+                  <Link href="/info">회사</Link>
+                  <Link href="/about">안내</Link>
+                  <Link href="/qa">Q&A</Link>
+                  <Link href="/contact">문의</Link>
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
+          
+          <div className="flex items-center">
+            <Button variant="ghost" size="icon" className="mr-2" onClick={togglePlayPause}>
+              {isPlaying ? <Music4 className="h-6 w-6" /> : <Disc3 className="h-6 w-6" />}
+              <span className="sr-only">배경음악 재생/정지</span>
+            </Button>
+
+            <Button variant="ghost" size="icon" className="mr-2 relative" asChild>
+              <Link href="/cart">
+                <ShoppingCart className="h-6 w-6" />
+                {cartItemCount > 0 && (
+                  <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">
+                    {cartItemCount}
+                  </span>
+                )}
+                <span className="sr-only">장바구니</span>
+              </Link>
+            </Button>
+            
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <User className="h-6 w-6" />
+                    <span className="sr-only">사용자 메뉴</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>{user.name}님</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/profile">
+                      <User className="mr-2 h-4 w-4" />
+                      <span>내 정보</span>
                     </Link>
-                    <nav className="flex items-center space-x-1 text-sm font-semibold">
-                        <Link href="/info" className="px-3 py-2 rounded-md transition-all duration-200 ease-in-out hover:text-blue-500 hover:scale-150 transform inline-block">Info</Link>
-                        <Link href="/admin/products" className="px-3 py-2 rounded-md transition-all duration-200 ease-in-out hover:text-blue-500 hover:scale-150 transform inline-block">Shop</Link>
-                        <Link href="/about" className="px-3 py-2 rounded-md transition-all duration-200 ease-in-out hover:text-blue-500 hover:scale-150 transform inline-block">About</Link>
-                        <Link href="/contact" className="px-3 py-2 rounded-md transition-all duration-200 ease-in-out hover:text-blue-500 hover:scale-150 transform inline-block">Contact</Link>
-                    </nav>
-                </div>
-                <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
-                    {/* 모바일 메뉴 */}
-                    <Sheet>
-                        <SheetTrigger asChild>
-                            <Button variant="ghost" size="icon" className="md:hidden">
-                                <Menu className="h-5 w-5" />
-                                <span className="sr-only">Toggle Menu</span>
-                            </Button>
-                        </SheetTrigger>
-                        <SheetContent side="left">
-                            <SheetHeader>
-                                <SheetTitle>메뉴</SheetTitle>
-                            </SheetHeader>
-                            <nav className="flex flex-col space-y-4 mt-4">
-                                <Link href="/info" className="transition-all duration-200 ease-in-out hover:text-blue-500 hover:scale-110 transform inline-block origin-left">Info</Link>
-                                <Link href="/admin/products" className="transition-all duration-200 ease-in-out hover:text-blue-500 hover:scale-110 transform inline-block origin-left">Shop</Link>
-                                <Link href="/about" className="transition-all duration-200 ease-in-out hover:text-blue-500 hover:scale-110 transform inline-block origin-left">About</Link>
-                                <Link href="/contact" className="transition-all duration-200 ease-in-out hover:text-blue-500 hover:scale-110 transform inline-block origin-left">Contact</Link>
-                            </nav>
-                        </SheetContent>
-                    </Sheet>
-
-                    {/* 배경음악 컨트롤 버튼 */}
-                    <Button variant="outline" size="icon" onClick={togglePlayPause}>
-                        {isPlaying ? <Music className="h-5 w-5" /> : <Music2 className="h-5 w-5" />}
-                        <span className="sr-only">Toggle Music</span>
-                    </Button>
-
-                    {/* 장바구니 */}
-                    <Sheet>
-                        <SheetTrigger asChild>
-                            <Button variant="outline" size="icon" className="relative">
-                                <ShoppingCart className="h-5 w-5" />
-                                {totalItems > 0 && (
-                                    <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground rounded-full h-5 w-5 text-xs flex items-center justify-center">
-                                        {totalItems}
-                                    </span>
-                                )}
-                            </Button>
-                        </SheetTrigger>
-                        <SheetContent>
-                            <SheetHeader>
-                                <SheetTitle>장바구니</SheetTitle>
-                            </SheetHeader>
-                            {cart.length === 0 ? (
-                                <p className="text-center py-8">장바구니가 비어있습니다.</p>
-                            ) : (
-                                <div className="mt-4">
-                                    {cart.map(item => (
-                                        <div key={item.id} className="flex justify-between items-center mb-4">
-                                            <div className="flex items-center">
-                                                <ImageWithFallback src={item.image} alt={item.name} width={64} height={64} className="rounded-md mr-4" />
-                                                <div>
-                                                    <p className="font-semibold">{item.name}</p>
-                                                    <p className="text-sm text-muted-foreground">₩{item.price.toLocaleString()}</p>
-                                                </div>
-                                            </div>
-                                            <div className="flex items-center">
-                                                <Button variant="outline" size="icon" onClick={() => updateQuantity(item.id, item.quantity - 1)} disabled={item.quantity <= 1}>-</Button>
-                                                <span className="w-8 text-center">{item.quantity}</span>
-                                                <Button variant="outline" size="icon" onClick={() => updateQuantity(item.id, item.quantity + 1)}>+</Button>
-                                                <Button variant="ghost" size="icon" className="ml-2" onClick={() => removeFromCart(item.id)}>
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-trash-2"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
-                                                </Button>
-                                            </div>
-                                        </div>
-                                    ))}
-                                    <div className="border-t pt-4 mt-4">
-                                        <div className="flex justify-between font-bold text-lg">
-                                            <span>총 금액</span>
-                                            <span>₩{totalPrice.toLocaleString()}</span>
-                                        </div>
-                                        <Button className="w-full mt-4">결제하기</Button>
-                                    </div>
-                                </div>
-                            )}
-                        </SheetContent>
-                    </Sheet>
-                </div>
-            </div>
-        </header>
-    );
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/profile/orders">
+                      <Package className="mr-2 h-4 w-4" />
+                      <span>주문 현황</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  {user.role === 'admin' && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuLabel>관리자 메뉴</DropdownMenuLabel>
+                      <DropdownMenuItem asChild>
+                        <Link href="/admin/registrations">
+                          <UserPlus className="mr-2 h-4 w-4" />
+                          <span>회원가입 신청</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href="/admin/users">
+                          <Users className="mr-2 h-4 w-4" />
+                          <span>사용자 관리</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href="/admin/products">
+                          <ClipboardList className="mr-2 h-4 w-4" />
+                          <span>상품 관리</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href="/admin/history">
+                          <History className="mr-2 h-4 w-4" />
+                          <span>계정 이력</span>
+                        </Link>
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={logout}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>로그아웃</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button asChild>
+                <Link href="/login">
+                  <LogIn className="mr-2 h-4 w-4" />
+                  로그인
+                </Link>
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
+    </header>
+  );
 };
 
 export default Header; 

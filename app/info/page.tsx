@@ -14,12 +14,12 @@ export default function InfoPage() {
                 <CardContent className="space-y-8">
                     <div className="flex flex-col md:flex-row items-center gap-8">
                         <div className="w-full md:w-1/3 flex justify-center">
-                            <div className="relative w-48 h-48 rounded-lg overflow-hidden shadow-lg">
+                            <div className="relative w-72 h-48 rounded-lg overflow-hidden shadow-lg">
                                 <ImageWithFallback 
                                     src="https://upload.wikimedia.org/wikipedia/commons/0/09/Flag_of_South_Korea.svg"
                                     alt="대한민국 국기"
                                     fill
-                                    className="object-cover"
+                                    className="object-contain"
                                 />
                             </div>
                         </div>

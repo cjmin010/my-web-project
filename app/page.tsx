@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, Suspense } from 'react';
 import { useProducts } from '@/context/ProductContext';
 import { Product } from '@/data/products';
 import { useCart } from '@/context/CartContext';
@@ -21,7 +21,6 @@ export default function HomePage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const productsPerPage = 20;
-  const searchParams = useSearchParams();
 
   const handleAddToCart = (product: Product) => {
     if (product.stock > 0) {
@@ -67,35 +66,43 @@ export default function HomePage() {
     }
   };
 
-  useEffect(() => {
-    const productId = searchParams.get('productId');
-    if (productId && filteredAndSortedProducts.length > 0) {
-      const productIndex = filteredAndSortedProducts.findIndex(p => p.id === Number(productId));
-      if (productIndex !== -1) {
-        const page = Math.floor(productIndex / productsPerPage) + 1;
-        if (currentPage !== page) {
-          setCurrentPage(page);
-        }
-        
-        setTimeout(() => {
-          const element = document.getElementById(`product-${productId}`);
-          if (element) {
-            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            // 카드를 잠시 하이라이트합니다.
-            element.style.transition = 'box-shadow 0.3s ease-in-out';
-            element.style.boxShadow = '0 0 20px 5px rgba(59, 130, 246, 0.7)'; // blue-500
-            setTimeout(() => {
-                if(element) element.style.boxShadow = '';
-            }, 2000);
+  // useSearchParams를 Suspense로 감싸기 위한 내부 컴포넌트 분리
+  function SearchParamsEffect() {
+    const searchParams = useSearchParams();
+    useEffect(() => {
+      const productId = searchParams.get('productId');
+      if (productId && filteredAndSortedProducts.length > 0) {
+        const productIndex = filteredAndSortedProducts.findIndex(p => p.id === Number(productId));
+        if (productIndex !== -1) {
+          const page = Math.floor(productIndex / productsPerPage) + 1;
+          if (currentPage !== page) {
+            setCurrentPage(page);
           }
-        }, 200);
+          setTimeout(() => {
+            const element = document.getElementById(`product-${productId}`);
+            if (element) {
+              element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              // 카드를 잠시 하이라이트합니다.
+              element.style.transition = 'box-shadow 0.3s ease-in-out';
+              element.style.boxShadow = '0 0 20px 5px rgba(59, 130, 246, 0.7)'; // blue-500
+              setTimeout(() => {
+                if(element) element.style.boxShadow = '';
+              }, 2000);
+            }
+          }, 200);
+        }
       }
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams, filteredAndSortedProducts]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [searchParams, filteredAndSortedProducts]);
+    return null;
+  }
 
   return (
     <>
+      {/* Suspense로 감싸서 useSearchParams 빌드 오류 방지 */}
+      <Suspense fallback={<div>로딩 중...</div>}>
+        <SearchParamsEffect />
+      </Suspense>
       {/* Hero Section */}
       <section className="relative w-full h-[50vh] bg-cover bg-center" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')" }}>
         <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center text-center text-white p-4">

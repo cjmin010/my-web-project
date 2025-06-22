@@ -1,7 +1,8 @@
 import { Resend } from 'resend';
 import { NextRequest, NextResponse } from 'next/server';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// API 키가 없으면 Resend 인스턴스를 생성하지 않음
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
 export async function POST(req: NextRequest) {
   try {
@@ -10,6 +11,12 @@ export async function POST(req: NextRequest) {
 
     if (!name || !email || !message) {
       return NextResponse.json({ error: '모든 필드를 입력해주세요.' }, { status: 400 });
+    }
+
+    // API 키가 없으면 시뮬레이션 응답
+    if (!resend) {
+      console.log('이메일 시뮬레이션:', { name, email, message });
+      return NextResponse.json({ message: '메시지가 성공적으로 전송되었습니다. (시뮬레이션)' }, { status: 200 });
     }
 
     const { data, error } = await resend.emails.send({

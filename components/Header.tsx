@@ -23,10 +23,10 @@ export default function Header({ searchTerm, setSearchTerm }: HeaderProps) {
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-center h-16">
                     <div className="flex items-center">
-                        <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="md:hidden mr-4">
-                            <Menu />
+                        <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="md:hidden mr-3">
+                            <Menu className="h-5 w-5" />
                         </button>
-                        <Link href="/" className="text-2xl font-bold text-gray-900">MINI 스토어</Link>
+                        <Link href="/" className="text-xl md:text-2xl font-bold text-gray-900 truncate">MINI 스토어</Link>
                     </div>
                     <nav className={`md:flex md:items-center md:space-x-8 ${isMenuOpen ? 'absolute top-16 left-0 w-full bg-white shadow-md flex flex-col items-center space-y-4 p-4' : 'hidden'}`}>
                         <Link href="/info" className="text-gray-600 hover:text-gray-900">Info</Link>
@@ -34,7 +34,7 @@ export default function Header({ searchTerm, setSearchTerm }: HeaderProps) {
                         <Link href="#" className="text-gray-600 hover:text-gray-900">About</Link>
                         <Link href="#" className="text-gray-600 hover:text-gray-900">Contact</Link>
                     </nav>
-                    <div className="flex items-center space-x-4">
+                    <div className="flex items-center space-x-2 md:space-x-4">
                         <div className="relative hidden md:block">
                             <Input
                                 type="search"
@@ -49,7 +49,7 @@ export default function Header({ searchTerm, setSearchTerm }: HeaderProps) {
                         <Sheet>
                             <SheetTrigger asChild>
                                 <Button variant="ghost" size="icon" className="relative">
-                                    <ShoppingCart />
+                                    <ShoppingCart className="h-5 w-5" />
                                     {cartItemCount > 0 && (
                                         <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full h-5 w-5 flex items-center justify-center text-xs">
                                             {cartItemCount}
